@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gin_social/configs"
+	"gin_social/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,5 +21,8 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	routes.AuthRoutes(api)
+	
 	r.Run(fmt.Sprintf(":%v", configs.ENV.PORT)) // listen and serve on 0.0.0.0:8080
 }
