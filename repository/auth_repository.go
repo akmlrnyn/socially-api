@@ -10,6 +10,7 @@ import (
 type AuthRepository interface{
 	EmailExist(email string) bool
 	Register(req *entities.User) error
+	GetUserByEmail(email string) (*entities.User, error)
 }
 
 type authRepository struct{
@@ -33,4 +34,11 @@ func (r *authRepository) Register(user *entities.User) error {
 	err := configs.DB.Create(&user).Error
 
 	return err
+}
+
+func (r *authRepository) GetUserByEmail(email string) (*entities.User, error) {
+	var user entities.User
+	err := r.db.First(&user, "email = ?", email).Error
+
+	return &user, err
 }
