@@ -23,6 +23,7 @@ func main() {
 	})
 
 	routes.AuthRoutes(api)
+	routes.PostRouter(api)
 	
 	r.Run(fmt.Sprintf(":%v", configs.ENV.PORT)) // listen and serve on 0.0.0.0:8080
 }
