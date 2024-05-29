@@ -67,3 +67,22 @@ func (h *postHandler) Create(c *gin.Context){
 
 	c.JSON(http.StatusCreated, res)
 }
+
+func (h *postHandler) Get(c *gin.Context){
+	filter := helpers.FilterParams(c)
+
+	posts, paginate, err := h.services.FindAll(filter)
+
+	if err != nil{
+		errorhandler.HandleError(c, err)
+	}
+
+	res := &dto.ResponseParam{
+		StatusCode: http.StatusOK,
+		Message: "Tweet Lists",
+		Paginate: paginate,
+		Data: posts,
+	}
+
+	c.JSON(http.StatusOK, res)
+}

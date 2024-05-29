@@ -10,13 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func PostRouter(api *gin.RouterGroup){
+func PostRouter(api *gin.RouterGroup) {
 	postRepo := repository.NewPostRepository(configs.DB)
 	postService := services.NewPostService(postRepo)
 	postHandler := handler.NewPostHandler(postService)
 
-	r:= api.Group("/tweets")
+	r := api.Group("/tweets")
 	r.Use(middleware.JWTMiddleware())
 
+	r.GET("/", postHandler.Get)
 	r.POST("/create", postHandler.Create)
 }

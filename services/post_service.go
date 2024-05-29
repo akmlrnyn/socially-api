@@ -5,10 +5,12 @@ import (
 	"gin_social/entities"
 	"gin_social/errorhandler"
 	"gin_social/repository"
+	"math"
 )
 
 type PostService interface{
 	Create(post *dto.PostRequest) error
+	FindAll(param *dto.FilterParam) (*[]dto.PostResponse, *dto.Paginate, error)
 }
 
 type postService struct{
@@ -36,4 +38,28 @@ func (s *postService) Create(req *dto.PostRequest) error{
 	}
 
 	return nil
+}
+
+func (s *postService) FindAll(params *dto.FilterParam) (*[]dto.PostResponse, *dto.Paginate, error) {
+	total, err := s.repository.CountAll(params)
+
+	if err != nil{
+		return nil, nil, &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	posts, err := s.repository.FindAll(params)
+
+	if err != nil{
+		return nil, nil, &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+
+	paginate := &dto.Paginate{
+		Total:      int(total),
+		PerPage:    params.Limit,
+		Page:       params.Page,
+		TotalPage: int(math.Ceil(float64(total) / float64(params.Limit))),
+	}
+
+	return posts, paginate, nil
 }

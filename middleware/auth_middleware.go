@@ -13,7 +13,7 @@ func JWTMiddleware() gin.HandlerFunc{
 		tokenString := c.GetHeader("Authorization")
 
 		if tokenString == "" {
-			errorhandler.HandleError(c, &errorhandler.Unauthorized{Message: "Unauthorized"})
+			errorhandler.HandleError(c, &errorhandler.Unauthorized{Message: "UnauthorizedEmpty"})
 			c.Abort()
 			return
 		}
@@ -21,7 +21,7 @@ func JWTMiddleware() gin.HandlerFunc{
 		userId, err := helpers.ValidateToken(tokenString)
 
 		if err != nil{
-			errorhandler.HandleError(c, &errorhandler.Unauthorized{Message: "Unauthorized"})
+			errorhandler.HandleError(c, &errorhandler.Unauthorized{Message: err.Error()})
 			c.Abort()
 			return
 		}

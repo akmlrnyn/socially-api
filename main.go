@@ -15,6 +15,10 @@ func main() {
 
 
 	r := gin.Default()
+
+	//set max size of memory usage for pic
+	r.MaxMultipartMemory = 8 << 20
+
 	api := r.Group("/api")
 	api.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{

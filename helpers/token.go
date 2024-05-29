@@ -11,7 +11,7 @@ import (
 var mySigningKey = []byte("mysecretkey")
 
 type JWTClaims struct{
-	id int `json:"id"`
+	ID int `json:"id"`
 	jwt.RegisteredClaims
 }
 
@@ -32,24 +32,22 @@ func GenerateToken(user *entities.User) (string, error) {
 }
 
 func ValidateToken(tokenString string) (*int, error) {
-	token, err := jwt.ParseWithClaims(tokenString, JWTClaims{}, func (token *jwt.Token)(interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return mySigningKey, nil
 	})
 
-
-	if err != nil{
-		if err == jwt.ErrSignatureInvalid{
-			return nil, errors.New("Invalid token signature")
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			return nil, errors.New("invalid token signature")
 		}
 
 		return nil, errors.New("your token was expired")
 	}
 
 	claims, ok := token.Claims.(*JWTClaims)
-
-	if !ok || !token.Valid{
+	if !ok || !token.Valid {
 		return nil, errors.New("your token was expired")
 	}
 
-	return &claims.id, nil
+	return &claims.ID, nil
 }
