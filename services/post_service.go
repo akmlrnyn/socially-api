@@ -6,12 +6,14 @@ import (
 	"gin_social/errorhandler"
 	"gin_social/repository"
 	"math"
+	"time"
 )
 
 type PostService interface{
 	Create(post *dto.PostRequest) error
 	FindAll(param *dto.FilterParam) (*[]dto.PostResponse, *dto.Paginate, error)
 	Detail(id int) (*dto.PostResponse, error)
+	Update(id int, req *dto.PostRequest) error
 }
 
 type postService struct{
@@ -73,4 +75,31 @@ func (s *postService) Detail(id int) (*dto.PostResponse, error){
 	}
 
 	return &post, nil
+}
+
+func (s *postService) Update(id int, req *dto.PostRequest) error{
+	currentPost, err := (s).Detail(id)
+
+	if err != nil{
+		return err
+	}
+
+	if req.UserId != currentPost.ID{
+		return &errorhandler.BadRequestError{Message: "thats not your tweet"}
+	}
+
+	post := entities.Post{
+		Tweet: req.Tweet,
+		UpdatedAt: time.Now(),
+	}
+
+	if req.Picture != nil{
+		post.PictureUrl = &req.Picture.Filename
+	}
+
+	if err := s.repository.Update(id, &post); err != nil{
+		return &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	return nil
 }

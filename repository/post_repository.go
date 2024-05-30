@@ -14,6 +14,7 @@ type PostRepository interface{
 	CountAll(params *dto.FilterParam) (int64, error)
 	FindAll(params *dto.FilterParam) (*[]dto.PostResponse, error)
 	Detail(id *int) (dto.PostResponse, error)
+	Update(id int, post *entities.Post) error
 }
 
 type postRepository struct{
@@ -76,6 +77,12 @@ func (r *postRepository) Detail(id *int) (dto.PostResponse, error) {
 	}
 
 	return postResponse, err
+}
+
+func (r *postRepository) Update(id int, post *entities.Post) error{
+	err := r.db.Model(&post).Where("id = ?", id).Updates(&post).Error
+
+	return err
 }
 
 

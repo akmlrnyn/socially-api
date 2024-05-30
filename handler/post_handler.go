@@ -107,3 +107,51 @@ func (h *postHandler) Detail(c *gin.Context) {
 
 	c.JSON(http.StatusOK, res)
 }
+
+func (h *postHandler) Update(c *gin.Context) {
+	idStr := c.Param("id")
+	idInt, _ := strconv.Atoi(idStr)
+
+	var post dto.PostRequest
+
+	if err := c.ShouldBind(&post); err != nil{
+		errorhandler.HandleError(c, err)
+		return
+	}
+
+	//check if the user post image or not
+	if post.Picture != nil{
+		//make the directory for stored picture
+		_, err := os.Stat("/public/picture")
+		if err !=  nil && os.IsNotExist(err) {
+			if err := os.MkdirAll("public/picture", 0755); err != nil{
+			errorhandler.HandleError(c, &errorhandler.InternalServerError{Message: err.Error()})
+			return
+		}} 
+
+		//rename the file thats stored
+		ext := filepath.Ext(post.Picture.Filename)
+		fileName := uuid.New().String() + ext
+
+		//save image to directory
+		dst := filepath.Join("public/picture", filepath.Base(fileName))
+		c.SaveUploadedFile(post.Picture, dst)
+
+		post.Picture.Filename = fmt.Sprintf("%s/public/picture/%s", c.Request.Host, fileName)
+	}
+
+	userId, _ := c.Get("UserId")
+	post.UserId = userId.(int)
+
+	if err := h.services.Update(idInt, &post); err != nil{
+		errorhandler.HandleError(c, err)
+		return
+	}
+
+	res := helpers.Response(&dto.ResponseParam{
+		StatusCode: 201,
+		Message: "successfully updated the tweet",
+	})
+
+	c.JSON(http.StatusOK, res)
+}
