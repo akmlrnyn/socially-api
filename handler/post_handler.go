@@ -155,3 +155,24 @@ func (h *postHandler) Update(c *gin.Context) {
 
 	c.JSON(http.StatusOK, res)
 }
+
+func (h *postHandler) Delete(c *gin.Context){
+	idStr := c.Param("id")
+	idInt, _ := strconv.Atoi(idStr)
+
+	userID, _ := c.Get("UserId")
+	userIDInt := userID.(int)
+
+
+	if err := h.services.Delete(idInt, userIDInt); err != nil{
+		errorhandler.HandleError(c, err)
+		return
+	}
+
+	res := helpers.Response(&dto.ResponseParam{
+		StatusCode: 200,
+		Message: "success delete tweet",
+	})
+
+	c.JSON(http.StatusOK, res)
+}

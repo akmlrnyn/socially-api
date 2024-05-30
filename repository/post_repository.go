@@ -15,6 +15,7 @@ type PostRepository interface{
 	FindAll(params *dto.FilterParam) (*[]dto.PostResponse, error)
 	Detail(id *int) (dto.PostResponse, error)
 	Update(id int, post *entities.Post) error
+	Delete(id int) error
 }
 
 type postRepository struct{
@@ -81,6 +82,13 @@ func (r *postRepository) Detail(id *int) (dto.PostResponse, error) {
 
 func (r *postRepository) Update(id int, post *entities.Post) error{
 	err := r.db.Model(&post).Where("id = ?", id).Updates(&post).Error
+
+	return err
+}
+
+func (r *postRepository) Delete(id int) error{
+	var post *entities.Post
+	err := r.db.Model(&post).Where("id = ?", id).Delete(&post).Error
 
 	return err
 }

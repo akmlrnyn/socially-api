@@ -14,6 +14,7 @@ type PostService interface{
 	FindAll(param *dto.FilterParam) (*[]dto.PostResponse, *dto.Paginate, error)
 	Detail(id int) (*dto.PostResponse, error)
 	Update(id int, req *dto.PostRequest) error
+	Delete(id int, userID int) error
 }
 
 type postService struct{
@@ -98,6 +99,24 @@ func (s *postService) Update(id int, req *dto.PostRequest) error{
 	}
 
 	if err := s.repository.Update(id, &post); err != nil{
+		return &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	return nil
+}
+
+func (s *postService) Delete(id int, userID int) error{
+	currentPost, err := (s).Detail(id)
+
+	if err != nil{
+		return err
+	}
+
+	if currentPost.UserId != userID{
+		return &errorhandler.BadRequestError{Message: "thats not your tweet"}
+	}
+
+	if err := s.repository.Delete(id); err != nil{
 		return &errorhandler.InternalServerError{Message: err.Error()}
 	}
 
