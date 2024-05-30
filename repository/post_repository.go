@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"gin_social/dto"
 	"gin_social/entities"
@@ -12,6 +13,7 @@ type PostRepository interface{
 	Create(post *entities.Post) error
 	CountAll(params *dto.FilterParam) (int64, error)
 	FindAll(params *dto.FilterParam) (*[]dto.PostResponse, error)
+	Detail(id *int) (dto.PostResponse, error)
 }
 
 type postRepository struct{
@@ -62,4 +64,18 @@ func (r *postRepository) FindAll(params *dto.FilterParam) (*[]dto.PostResponse, 
 
 	return &postResponse, err
 }
+
+
+func (r *postRepository) Detail(id *int) (dto.PostResponse, error) {
+	var postResponse dto.PostResponse
+
+	err := r.db.Model(&entities.Post{}).Select("id, user_id, tweet, picture_url, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as created_at, DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s) as updated_at").Preload("User").First(&postResponse, id).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = errors.New("tweet not found")
+	}
+
+	return postResponse, err
+}
+
 

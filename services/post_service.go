@@ -11,6 +11,7 @@ import (
 type PostService interface{
 	Create(post *dto.PostRequest) error
 	FindAll(param *dto.FilterParam) (*[]dto.PostResponse, *dto.Paginate, error)
+	Detail(id int) (*dto.PostResponse, error)
 }
 
 type postService struct{
@@ -62,4 +63,14 @@ func (s *postService) FindAll(params *dto.FilterParam) (*[]dto.PostResponse, *dt
 	}
 
 	return posts, paginate, nil
+}
+
+func (s *postService) Detail(id int) (*dto.PostResponse, error){
+	post, err := s.repository.Detail(&id)
+
+	if err != nil{
+		return nil, &errorhandler.ErrrorNotFound{Message: "tweet not found"}
+	}
+
+	return &post, nil
 }

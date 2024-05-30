@@ -19,5 +19,6 @@ func PostRouter(api *gin.RouterGroup) {
 	r.Use(middleware.JWTMiddleware())
 
 	r.GET("/", postHandler.Get)
+	r.GET("/:id/detail", postHandler.Detail)
 	r.POST("/create", postHandler.Create)
 }

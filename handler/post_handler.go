@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -83,6 +84,26 @@ func (h *postHandler) Get(c *gin.Context){
 		Paginate: paginate,
 		Data: posts,
 	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *postHandler) Detail(c *gin.Context) {
+	idStr := c.Param("id")
+	idInt, _ := strconv.Atoi(idStr)
+
+	post, err := h.services.Detail(idInt)
+
+	if err != nil{
+		errorhandler.HandleError(c, &errorhandler.ErrrorNotFound{Message: err.Error()})
+		return
+	}
+
+	res := helpers.Response(&dto.ResponseParam{
+		StatusCode: 200,
+		Message: "Tweet detail",
+		Data: post,
+	})
 
 	c.JSON(http.StatusOK, res)
 }
